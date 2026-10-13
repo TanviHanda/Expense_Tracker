@@ -1,7 +1,6 @@
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/TopBar";
 
-
 export default function DashboardLayout({ children }) {
   return (
     <div className="flex h-screen overflow-hidden">
