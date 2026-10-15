@@ -1,7 +1,8 @@
+import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/TopBar";
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -10,7 +11,7 @@ export default function DashboardLayout({ children }) {
         <Topbar />
 
         <main className="flex-1 overflow-y-auto p-4">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
