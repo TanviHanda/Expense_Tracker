@@ -1,6 +1,6 @@
 import ExpenseItem from "./ExpenseItem";
 
-const ExpenseList = () => {
+const ExpenseList = ({ expenses = [], onDeleteExpense, loading, error }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
@@ -26,9 +26,18 @@ const ExpenseList = () => {
       </div>
 
       <div className="mt-3 space-y-3">
-        <ExpenseItem />
-        <ExpenseItem />
-        <ExpenseItem />
+        {loading && <p className="text-gray-500 text-center">Loading expenses...</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        {!loading && !error && expenses.length === 0 && (
+          <p className="text-gray-500 text-center">No expenses found.</p>
+        )}
+        {!loading && !error && expenses.map((expense) => (
+          <ExpenseItem
+            key={expense.id}
+            expense={expense}
+            onDeleteExpense={onDeleteExpense}
+          />
+        ))}
       </div>
     </div>
   );
