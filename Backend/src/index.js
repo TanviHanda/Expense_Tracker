@@ -108,11 +108,11 @@ app.get('/api/income', async (req, res) => {
 
 /* POST income */
 app.post('/api/income', async (req, res) => {
-  const { title, amount, source, income_date, notes } = req.body;
+  const { title, amount, source, income_Date, notes } = req.body;
 
   const { data, error } = await supabase
     .from('income')
-    .insert([{ title, amount, source, income_date, notes }])
+    .insert([{ title, amount, source, income_Date, notes }])
     .select();
 
   if (error) {
@@ -125,13 +125,13 @@ app.post('/api/income', async (req, res) => {
 /* PATCH income */
 app.patch('/api/income/:id', async (req, res) => {
   const { id } = req.params;
-  const { title, amount, source, income_date, notes } = req.body;
+  const { title, amount, source, income_Date, notes } = req.body;
 
   const updates = {};
   if (title !== undefined) updates.title = title;
   if (amount !== undefined) updates.amount = amount;
   if (source !== undefined) updates.source = source;
-  if (income_date !== undefined) updates.income_date = income_date;
+  if (income_Date !== undefined) updates.income_Date = income_Date;
   if (notes !== undefined) updates.notes = notes;
 
   if (Object.keys(updates).length === 0) {

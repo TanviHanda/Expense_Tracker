@@ -1,4 +1,42 @@
-const IncomeForm = () => {
+import { useState } from "react";
+
+const IncomeForm = ({ onAddIncome }) => {
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [source, setSource] = useState("");
+  const [date, setDate] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      !title.trim() ||
+      !amount ||
+      Number(amount) <= 0 ||
+      !source ||
+      !date
+    ) {
+      alert("Please fill in all fields with valid values.");
+      return;
+    }
+
+    const newIncome = {
+      title: title.trim(),
+      amount: parseFloat(amount),
+      source,
+      income_Date: date,
+    };
+
+    const success = await onAddIncome(newIncome);
+
+    if (success) {
+      setTitle("");
+      setAmount("");
+      setSource("");
+      setDate("");
+    }
+  };
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="mb-6">
@@ -10,7 +48,7 @@ const IncomeForm = () => {
         </p>
       </div>
 
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Income Title
@@ -19,6 +57,8 @@ const IncomeForm = () => {
             type="text"
             placeholder="e.g. Monthly salary"
             className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
         </div>
 
@@ -32,6 +72,8 @@ const IncomeForm = () => {
             step="0.01"
             placeholder="Enter amount"
             className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
           />
         </div>
 
@@ -40,7 +82,8 @@ const IncomeForm = () => {
             Income Source
           </label>
           <select
-            defaultValue=""
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value="" disabled>Select source</option>
@@ -59,6 +102,8 @@ const IncomeForm = () => {
           </label>
           <input
             type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
