@@ -182,9 +182,9 @@ app.delete('/api/income/:id', async (req, res) => {
 // CRUD budget
 
 /* GET budgets */
-app.get('/api/budgets', async (req, res) => {
+app.get('/api/budget', async (req, res) => {
   const { data, error } = await supabase
-    .from('budgets')
+    .from('budget')
     .select('*');
 
   if (error) {
@@ -195,12 +195,12 @@ app.get('/api/budgets', async (req, res) => {
 });
 
 /* POST budget */
-app.post('/api/budgets', async (req, res) => {
-  const { category, amount, month, year } = req.body;
+app.post('/api/budget', async (req, res) => {
+  const { category, amount, month } = req.body;
 
   const { data, error } = await supabase
-    .from('budgets')
-    .insert([{ category, amount, month, year }])
+    .from('budget')
+    .insert([{ category, amount, month }])
     .select();
 
   if (error) {
@@ -211,22 +211,21 @@ app.post('/api/budgets', async (req, res) => {
 });
 
 /* PATCH budget */
-app.patch('/api/budgets/:id', async (req, res) => {
+app.patch('/api/budget/:id', async (req, res) => {
   const { id } = req.params;
-  const { category, amount, month, year } = req.body;
+  const { category, amount, month } = req.body;
 
   const updates = {};
   if (category !== undefined) updates.category = category;
   if (amount !== undefined) updates.amount = amount;
   if (month !== undefined) updates.month = month;
-  if (year !== undefined) updates.year = year;
 
   if (Object.keys(updates).length === 0) {
     return res.status(400).json({ message: 'Provide a field to update' });
   }
 
   const { data, error } = await supabase
-    .from('budgets')
+    .from('budget')
     .update(updates)
     .eq('id', id)
     .select();
@@ -243,11 +242,11 @@ app.patch('/api/budgets/:id', async (req, res) => {
 });
 
 /* DELETE budget */
-app.delete('/api/budgets/:id', async (req, res) => {
+app.delete('/api/budget/:id', async (req, res) => {
   const { id } = req.params;
 
   const { data, error } = await supabase
-    .from('budgets')
+    .from('budget')
     .delete()
     .eq('id', id)
     .select();
