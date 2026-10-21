@@ -27,7 +27,10 @@ const Expenses = () => {
   const handleAddExpense = async(expense) => {
     try{
       const newExpense = await addExpense(expense);
-      setExpenses(prevExpenses => [...prevExpenses, newExpense.data]);
+      const savedExpense = Array.isArray(newExpense)
+        ? newExpense[0]
+        : newExpense;
+      setExpenses(prevExpenses => [...prevExpenses, savedExpense]);
     }
     catch{
       setError("Failed to add expense.");

@@ -1,6 +1,11 @@
 import BudgetItem from "./BudgetItem";
 
-const BudgetList = ({ budget = [], loading, onDeleteBudget }) => {
+const BudgetList = ({
+  budget = [],
+  expenses = [],
+  loading,
+  onDeleteBudget,
+}) => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
@@ -29,6 +34,7 @@ const BudgetList = ({ budget = [], loading, onDeleteBudget }) => {
             <BudgetItem
               key={budget.id}
               budget={budget}
+              expenses={expenses}
               onDeleteBudget={onDeleteBudget}
             />
           ))}

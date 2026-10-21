@@ -27,7 +27,7 @@ app.post('/api/expenses', async (req, res) => {
   if (error) {
     return res.status(500).json({ error: error.message });
   }
-  res.status(201).json(data);
+  res.status(201).json(data[0]);
 })
 
 //update expense in supabase

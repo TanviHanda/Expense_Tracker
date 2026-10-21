@@ -1,29 +1,40 @@
 import { useEffect, useState } from "react";
 import BudgetForm from "../components/BudgetForm";
 import BudgetList from "../components/BudgetList";
+import { getExpenses } from "../services/expenseService";
 import {
   getbudget,
   addBudget,
   deleteBudget,
-} from "../services/budgetservice";
+} from "../services/budgetService";
 const Budget = () => {
+  const [expenses, setExpenses] = useState([]);
   const [budget, setbudget] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   useEffect(() => {
-    const fetchbudget = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getbudget();
-        setbudget(data);
+        const [budgetData, expenseData] = await Promise.all([
+          getbudget(),
+          getExpenses(),
+        ]);
+
+        setbudget(budgetData);
+        setExpenses(expenseData);
       } catch (err) {
-        setError(err.response?.data?.error || "Failed to fetch budget.");
+        setError(
+          err.response?.data?.error || "Failed to fetch budget data."
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchbudget();
+    fetchData();
   }, []);
+
   const handleAddBudget = async (budget) => {
     setError("");
 
@@ -67,7 +78,12 @@ const Budget = () => {
         </div>
 
         <div className="xl:col-span-2 min-w-0">
-          <BudgetList onDeleteBudget={handleDeleteBudget} budget={budget} loading={loading} error={error} />
+          <BudgetList
+            budget={budget}
+            expenses={expenses}
+            loading={loading}
+            onDeleteBudget={handleDeleteBudget}
+          />
         </div>
       </div>
     </div>
