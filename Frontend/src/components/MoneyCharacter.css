@@ -1,0 +1,192 @@
+.money-scene {
+  position: relative;
+  display: flex;
+  min-height: 380px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 20px;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.money-scene.income {
+  background: radial-gradient(circle, #064e3b, #020617 80%);
+}
+
+.money-scene.expense {
+  background: radial-gradient(circle, #7f1d1d, #020617 80%);
+}
+
+.money-scene.cry {
+  background: radial-gradient(circle, #31113c, #020617 80%);
+}
+
+.money-scene.budget {
+  background: radial-gradient(circle, #0f172a, #172554 90%);
+}
+
+.money-caption {
+  z-index: 2;
+  margin-bottom: 12px;
+  color: white;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  text-align: center;
+  text-transform: uppercase;
+  animation: caption-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.money-character {
+  width: min(100%, 250px);
+  overflow: visible;
+}
+
+/* Base Scene Animations */
+.income .money-character {
+  animation: happy-jump 0.5s ease-in-out infinite alternate;
+}
+
+.expense .money-character {
+  transform-origin: center bottom;
+  animation: shocked-shake 0.15s ease-in-out infinite alternate;
+}
+
+.cry .money-character {
+  animation: sad-slouch 1.8s ease-in-out infinite alternate;
+}
+
+.budget .money-character {
+  animation: dynamic-focused 2.5s ease-in-out infinite alternate;
+}
+
+/* Arms and Hand Waving Details */
+.income .arms.waving {
+  transform-origin: 120px 175px;
+  animation: hand-swing 0.35s ease-in-out infinite alternate;
+}
+
+.expense .arms.clutching {
+  transform-origin: 120px 175px;
+  animation: arm-tremble 0.08s ease-in-out infinite alternate;
+}
+
+.cry .arms.dropped {
+  transform-origin: 120px 175px;
+  animation: sad-droop 2.5s ease-in-out infinite alternate;
+}
+
+.budget .arms.analyzing {
+  transform-origin: 120px 175px;
+  animation: checklist-tinker 1s ease-in-out infinite alternate;
+}
+
+/* Custom flow detail mechanics */
+.cry .tears {
+  animation: tear-pulse 0.4s ease-in-out infinite alternate;
+}
+
+.floating-money {
+  animation: money-frenzied-float 1.2s ease-in-out infinite;
+}
+
+.stress-markers {
+  animation: alert-blink 0.3s ease-in-out infinite alternate;
+}
+
+.comic-bubble {
+  position: absolute;
+  right: 15px;
+  top: 40%;
+  max-width: 140px;
+  border-radius: 16px;
+  background: white;
+  padding: 10px 12px;
+  color: #1e1b4b;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  transform: rotate(5deg);
+  animation: bubble-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+/* Keyframes */
+@keyframes happy-jump {
+  from { transform: translateY(0) scale(1) rotate(-1deg); }
+  to { transform: translateY(-18px) scale(0.98) rotate(2deg); }
+}
+
+@keyframes hand-swing {
+  from { transform: rotate(-5deg) scaleY(0.95); }
+  to { transform: rotate(8deg) scaleY(1.05); }
+}
+
+@keyframes shocked-shake {
+  0% { transform: translate(-3px, 1px) rotate(-1.5deg); }
+  50% { transform: translate(3px, -1px) rotate(1.5deg); }
+  100% { transform: translate(-1px, -2px) rotate(-0.5deg); }
+}
+
+@keyframes arm-tremble {
+  from { transform: scale(0.97) rotate(-2deg); }
+  to { transform: scale(1.03) rotate(2deg); }
+}
+
+@keyframes alert-blink {
+  from { opacity: 0.4; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes sad-slouch {
+  from { transform: translateY(0) scaleY(1); }
+  to { transform: translateY(6px) scaleY(0.97); }
+}
+
+@keyframes sad-droop {
+  from { transform: translateY(0) rotate(-2deg); }
+  to { transform: translateY(4px) rotate(2deg); }
+}
+
+@keyframes tear-pulse {
+  from { transform: scaleY(0.92); opacity: 0.8; }
+  to { transform: scaleY(1.08); opacity: 1; }
+}
+
+@keyframes checklist-tinker {
+  from { transform: rotate(-1deg) translateY(0); }
+  to { transform: rotate(1.5deg) translateY(2px); }
+}
+
+@keyframes dynamic-focused {
+  0% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(3px) rotate(0.5deg); }
+  100% { transform: translateY(-2px) rotate(-0.5deg); }
+}
+
+@keyframes money-frenzied-float {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes caption-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bubble-pop {
+  from { opacity: 0; transform: scale(0.6) rotate(-15deg); }
+  to { opacity: 1; transform: scale(1) rotate(5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .money-character,
+  .money-character *,
+  .money-caption,
+  .comic-bubble {
+    animation: none !important;
+  }
+}
