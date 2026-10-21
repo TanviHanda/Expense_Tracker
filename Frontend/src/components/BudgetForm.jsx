@@ -1,10 +1,26 @@
-import { useState } from "react";
-const BudgetForm = ({ onAddBudget }) => {
+import { useState, useEffect } from "react";
+const BudgetForm = ({
+  onAddBudget,
+  editingBudget,
+  onUpdateBudget,
+  onCancelEdit,
+}) => {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [monthValue, setMonthValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  useEffect(() => {
+    if (editingBudget) {
+      setAmount(String(editingBudget.amount ?? ""));
+      setCategory(editingBudget.category || "");
+      setMonthValue(editingBudget.month?.slice(0, 10) || "");
+    } else {
+      setAmount("");
+      setCategory("");
+      setMonthValue("");
+    }
+  }, [editingBudget]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -19,29 +35,33 @@ const BudgetForm = ({ onAddBudget }) => {
       amount: Number(amount),
       month: monthValue,
     };
+
     setSubmitting(true);
+    setError("");
 
     try {
-      const success = await onAddBudget(newBudget);
+      if (editingBudget) {
+        await onUpdateBudget(editingBudget.id, newBudget);
+      } else {
+        const success = await onAddBudget(newBudget);
 
-      if (success) {
-        setAmount("");
-        setCategory("");
-        setMonthValue("");
+        if (!success) return;
       }
-    } catch (error) {
-      setError(error.message || "Something went wrong. Please try again.");
-    }
-    finally {
+
+      setAmount("");
+      setCategory("");
+      setMonthValue("");
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to save budget.");
+    } finally {
       setSubmitting(false);
     }
   };
-
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-800">
-          Set New Budget
+          {editingBudget ? "Edit Budget" : "Set New Budget"}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           Plan your spending limits
@@ -108,8 +128,23 @@ const BudgetForm = ({ onAddBudget }) => {
           disabled={submitting}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5 px-4 rounded-lg transition-colors"
         >
-          {submitting ? "Saving..." : "+ Set Budget"}
+          {submitting
+            ? editingBudget
+              ? "Updating..."
+              : "Saving..."
+            : editingBudget
+              ? "Update Budget"
+              : "+ Set Budget"}
         </button>
+        {editingBudget && (
+          <button
+            type="button"
+            onClick={onCancelEdit}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            Cancel
+          </button>
+        )}
       </form>
     </div>
   );

@@ -5,6 +5,7 @@ import { getExpenses } from "../services/expenseService";
 import {
   getbudget,
   addBudget,
+  updateBudget,
   deleteBudget,
 } from "../services/budgetService";
 const Budget = () => {
@@ -12,7 +13,7 @@ const Budget = () => {
   const [budget, setbudget] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const [editingBudget, setEditingBudget] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,6 +48,29 @@ const Budget = () => {
       return false;
     }
   };
+  const handleEditBudget = (budget) => {
+    setEditingBudget(budget);
+  };
+  const handleUpdateBudget = async (id, updatedData) => {
+    setError("");
+
+    try {
+      const updatedBudget = await updateBudget(id, updatedData);
+
+      setbudget((prev) =>
+        prev.map((item) =>
+          item.id === id ? updatedBudget : item
+        )
+      );
+
+      setEditingBudget(null);
+    } catch (err) {
+      setError(
+        err.response?.data?.error || "Failed to update budget."
+      );
+      throw err;
+    }
+  };
   const handleDeleteBudget = async (id) => {
     setError("");
 
@@ -74,7 +98,12 @@ const Budget = () => {
       )}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         <div className="xl:col-span-1">
-          <BudgetForm onAddBudget={handleAddBudget} />
+          <BudgetForm
+            onAddBudget={handleAddBudget}
+            editingBudget={editingBudget}
+            onUpdateBudget={handleUpdateBudget}
+            onCancelEdit={() => setEditingBudget(null)}
+          />
         </div>
 
         <div className="xl:col-span-2 min-w-0">
@@ -83,6 +112,7 @@ const Budget = () => {
             expenses={expenses}
             loading={loading}
             onDeleteBudget={handleDeleteBudget}
+            onEditBudget={handleEditBudget}
           />
         </div>
       </div>

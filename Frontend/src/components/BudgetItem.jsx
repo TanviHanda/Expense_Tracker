@@ -6,7 +6,12 @@ const getMonthKey = (value) => {
     : null;
 };
 
-const BudgetItem = ({ budget, expenses = [], onDeleteBudget }) => {
+const BudgetItem = ({
+  budget,
+  expenses = [],
+  onDeleteBudget,
+  onEditBudget,
+}) => {
   const budgetMonthKey = getMonthKey(budget.month);
   const monthName = budgetMonthKey
     ? new Date(`${budgetMonthKey}-01T00:00:00`).toLocaleString(
@@ -120,15 +125,23 @@ const BudgetItem = ({ budget, expenses = [], onDeleteBudget }) => {
         </span>
       </div>
 
-      <div className="flex justify-end mt-4 pt-4 border-t border-gray-100">
-        <button
-          type="button"
-          onClick={() => onDeleteBudget(budget.id)}
-          className="text-sm text-gray-500 hover:text-red-600 transition-colors"
-        >
-          Delete
-        </button>
-      </div>
+      <div className="flex justify-end gap-4 mt-4 pt-4 border-t border-gray-100">
+  <button
+    type="button"
+    onClick={() => onEditBudget(budget)}
+    className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+  >
+    Edit
+  </button>
+
+  <button
+    type="button"
+    onClick={() => onDeleteBudget(budget.id)}
+    className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+  >
+    Delete
+  </button>
+</div>
     </div>
   );
 };

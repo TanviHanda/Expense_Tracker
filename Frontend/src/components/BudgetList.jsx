@@ -5,6 +5,7 @@ const BudgetList = ({
   expenses = [],
   loading,
   onDeleteBudget,
+  onEditBudget,
 }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -36,6 +37,7 @@ const BudgetList = ({
               budget={budget}
               expenses={expenses}
               onDeleteBudget={onDeleteBudget}
+              onEditBudget={onEditBudget}
             />
           ))}
         </div>
