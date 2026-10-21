@@ -26,7 +26,7 @@ const Signin = () => {
       }
 
       alert("Login successful!");
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       alert("Something went wrong. Please try again.");
       console.error(error);
