@@ -15,16 +15,21 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const passwordStrength = getPasswordStrength(password);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
+
     if (passwordStrength.score < 3) {
-  alert("Please create a strong password before signing up.");
-  return;
-}
+      alert("Please create a strong password before signing up.");
+      return;
+    }
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -33,6 +38,7 @@ const Signup = () => {
           data: {
             username: username.trim(),
           },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
@@ -41,15 +47,19 @@ const Signup = () => {
         return;
       }
 
-      console.log(data);
-      alert("Signup successful!");
-      navigate("/dashboard");
+      if (!data.session) {
+        alert("Account created! Please check your email to verify your account.");
+        return;
+      }
 
+      alert("Signup successful!");
+      navigate("/dashboard", { replace: true });
     } catch (error) {
+      console.error("Signup error:", error);
       alert("Something went wrong. Please try again.");
-      console.error(error);
     }
-  }
+  };
+
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row items-stretch">
@@ -126,131 +136,130 @@ const Signup = () => {
                 />
               </div>
 
-              
-<div>
-  <label
-    htmlFor="password"
-    className="block text-sm font-medium text-slate-200 mb-2"
-  >
-    Password
-  </label>
 
-  <div className="relative">
-    <input
-      type={showPassword ? "text" : "password"}
-      id="password"
-      name="new-password"
-      autoComplete="new-password"
-      required
-      minLength={8}
-      placeholder="Create a strong password"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 text-white placeholder:text-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-    />
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-slate-200 mb-2"
+                >
+                  Password
+                </label>
 
-    <button
-      type="button"
-      onClick={() => setShowPassword((prev) => !prev)}
-      aria-label={showPassword ? "Hide password" : "Show password"}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-    >
-      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-    </button>
-  </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="new-password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    placeholder="Create a strong password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 text-white placeholder:text-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
 
-  {password && (
-    <div className="mt-3">
-      <div className="flex gap-1.5">
-        {[1, 2, 3].map((level) => (
-          <div
-            key={level}
-            className={`h-1.5 flex-1 rounded-full ${
-              passwordStrength.score >= level
-                ? passwordStrength.color
-                : "bg-slate-700"
-            }`}
-          />
-        ))}
-      </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
 
-      <p className="mt-2 text-sm text-slate-400">
-        Password strength:{" "}
-        <span
-          className={
-            passwordStrength.score === 1
-              ? "text-red-400"
-              : passwordStrength.score === 2
-              ? "text-yellow-400"
-              : "text-green-400"
-          }
-        >
-          {passwordStrength.label}
-        </span>
-      </p>
-    </div>
-  )}
+                {password && (
+                  <div className="mt-3">
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1.5 flex-1 rounded-full ${passwordStrength.score >= level
+                            ? passwordStrength.color
+                            : "bg-slate-700"
+                            }`}
+                        />
+                      ))}
+                    </div>
 
-  <p className="mt-2 text-xs text-slate-500">
-    Use 8+ characters with uppercase, lowercase, numbers and symbols.
-    Your browser may also suggest a strong password.
-  </p>
-</div>
+                    <p className="mt-2 text-sm text-slate-400">
+                      Password strength:{" "}
+                      <span
+                        className={
+                          passwordStrength.score === 1
+                            ? "text-red-400"
+                            : passwordStrength.score === 2
+                              ? "text-yellow-400"
+                              : "text-green-400"
+                        }
+                      >
+                        {passwordStrength.label}
+                      </span>
+                    </p>
+                  </div>
+                )}
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Use 8+ characters with uppercase, lowercase, numbers and symbols.
+                  Your browser may also suggest a strong password.
+                </p>
+              </div>
 
 
-             
-<div>
-  <label
-    htmlFor="confirmPassword"
-    className="block text-sm font-medium text-slate-200 mb-2"
-  >
-    Confirm password
-  </label>
 
-  <div className="relative">
-    <input
-      type={showConfirmPassword ? "text" : "password"}
-      id="confirmPassword"
-      name="confirm-password"
-      autoComplete="new-password"
-      required
-      minLength={8}
-      placeholder="Enter password again"
-      value={confirmPassword}
-      onChange={(e) => setConfirmPassword(e.target.value)}
-      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 text-white placeholder:text-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-    />
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-slate-200 mb-2"
+                >
+                  Confirm password
+                </label>
 
-    <button
-      type="button"
-      onClick={() => setShowConfirmPassword((prev) => !prev)}
-      aria-label={
-        showConfirmPassword ? "Hide confirm password" : "Show confirm password"
-      }
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-    >
-      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-    </button>
-  </div>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    name="confirm-password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    placeholder="Enter password again"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 text-white placeholder:text-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
 
-  {confirmPassword && password !== confirmPassword && (
-    <p className="mt-2 text-sm text-red-400">
-      Passwords do not match.
-    </p>
-  )}
-</div>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={
+                      showConfirmPassword ? "Hide confirm password" : "Show confirm password"
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="mt-2 text-sm text-red-400">
+                    Passwords do not match.
+                  </p>
+                )}
+              </div>
 
 
               <button
-  type="submit"
-  disabled={
-    passwordStrength.score < 3 ||
-    password !== confirmPassword
-  }
-  className="w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
->
-  Create account
-</button>
+                type="submit"
+                disabled={
+                  passwordStrength.score < 3 ||
+                  password !== confirmPassword
+                }
+                className="w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Create account
+              </button>
 
             </form>
 

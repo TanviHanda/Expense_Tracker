@@ -1,24 +1,49 @@
-
 import axios from "axios";
+import { supabase } from "../lib/supabase";
 
 const API_URL = "http://localhost:5000/api/income";
 
+const getAuthConfig = async () => {
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session?.access_token) {
+    throw new Error("Please sign in to continue.");
+  }
+
+  return {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+  };
+};
+
 export const getIncomes = async () => {
-  const response = await axios.get(API_URL);
+  const config = await getAuthConfig();
+  const response = await axios.get(API_URL, config);
   return response.data;
 };
 
 export const addIncome = async (income) => {
-  const response = await axios.post(API_URL, income);
+  const config = await getAuthConfig();
+  const response = await axios.post(API_URL, income, config);
   return response.data;
 };
 
 export const deleteIncome = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
+  const config = await getAuthConfig();
+  const response = await axios.delete(`${API_URL}/${id}`, config);
   return response.data;
 };
 
 export const updateIncome = async (id, income) => {
-  const response = await axios.put(`${API_URL}/${id}`, income);
+  const config = await getAuthConfig();
+  const response = await axios.patch(
+    `${API_URL}/${id}`,
+    income,
+    config
+  );
   return response.data;
 };

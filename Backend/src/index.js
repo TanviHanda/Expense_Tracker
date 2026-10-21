@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { supabase } from './lib/supabase.js';
-
+import { verifyToken } from './middleware/authMiddleware.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -11,28 +11,49 @@ app.use(cors());
 app.use(express.json());
 
 //get expenses from supabase
-app.get('/api/expenses', async (req, res) => {
-  const expenses = await supabase.from('expenses').select('*');
-  if (expenses.error) {
-    return res.status(500).json({ error: expenses.error.message });
-  }
-  res.json(expenses.data);
-})
 
-// CRUD expense
-//add expense to supabase
-app.post('/api/expenses', async (req, res) => {
-  const { title, amount, category, expense_date, notes } = req.body;
-  const { data, error } = await supabase.from('expenses').insert([{ title, amount, category, expense_date, notes }]).select();
+app.get('/api/expenses', verifyToken, async (req, res) => {
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .eq('user_id', req.user.id);
+
   if (error) {
     return res.status(500).json({ error: error.message });
   }
+
+  res.json(data);
+});
+
+// CRUD expense
+//add expense to supabase
+
+app.post('/api/expenses', verifyToken, async (req, res) => {
+  const { title, amount, category, expense_date, notes } = req.body;
+
+  const { data, error } = await supabase
+    .from('expenses')
+    .insert([{
+      title,
+      amount,
+      category,
+      expense_date,
+      notes,
+      user_id: req.user.id,
+    }])
+    .select();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
   res.status(201).json(data[0]);
-})
+});
 
 //update expense in supabase
 
-app.patch('/api/expenses/:id', async (req, res) => {
+
+app.patch('/api/expenses/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
   const { title, amount, category, expense_date, notes } = req.body;
 
@@ -46,7 +67,7 @@ app.patch('/api/expenses/:id', async (req, res) => {
 
   if (Object.keys(updates).length === 0) {
     return res.status(400).json({
-      message: 'At least one field is required to update'
+      message: 'At least one field is required to update',
     });
   }
 
@@ -54,6 +75,7 @@ app.patch('/api/expenses/:id', async (req, res) => {
     .from('expenses')
     .update(updates)
     .eq('id', id)
+    .eq('user_id', req.user.id)
     .select();
 
   if (error) {
@@ -68,13 +90,15 @@ app.patch('/api/expenses/:id', async (req, res) => {
 });
 
 //delete expense from supabase
-app.delete('/api/expenses/:id', async (req, res) => {
+
+app.delete('/api/expenses/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   const { data, error } = await supabase
     .from('expenses')
     .delete()
     .eq('id', id)
+    .eq('user_id', req.user.id)
     .select();
 
   if (error) {
@@ -87,17 +111,17 @@ app.delete('/api/expenses/:id', async (req, res) => {
 
   res.json({
     message: 'Expense deleted successfully',
-    data: data[0]
+    data: data[0],
   });
 });
 
 //CRUD income 
-
 /* GET income */
-app.get('/api/income', async (req, res) => {
+app.get('/api/income', verifyToken, async (req, res) => {
   const { data, error } = await supabase
     .from('income')
-    .select('*');
+    .select('*')
+    .eq('user_id', req.user.id);
 
   if (error) {
     return res.status(500).json({ error: error.message });
@@ -107,12 +131,19 @@ app.get('/api/income', async (req, res) => {
 });
 
 /* POST income */
-app.post('/api/income', async (req, res) => {
+app.post('/api/income', verifyToken, async (req, res) => {
   const { title, amount, source, income_Date, notes } = req.body;
 
   const { data, error } = await supabase
     .from('income')
-    .insert([{ title, amount, source, income_Date, notes }])
+    .insert([{
+      title,
+      amount,
+      source,
+      income_Date,
+      notes,
+      user_id: req.user.id,
+    }])
     .select();
 
   if (error) {
@@ -123,11 +154,12 @@ app.post('/api/income', async (req, res) => {
 });
 
 /* PATCH income */
-app.patch('/api/income/:id', async (req, res) => {
+app.patch('/api/income/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
   const { title, amount, source, income_Date, notes } = req.body;
 
   const updates = {};
+
   if (title !== undefined) updates.title = title;
   if (amount !== undefined) updates.amount = amount;
   if (source !== undefined) updates.source = source;
@@ -135,13 +167,16 @@ app.patch('/api/income/:id', async (req, res) => {
   if (notes !== undefined) updates.notes = notes;
 
   if (Object.keys(updates).length === 0) {
-    return res.status(400).json({ message: 'Provide a field to update' });
+    return res.status(400).json({
+      message: 'Provide a field to update',
+    });
   }
 
   const { data, error } = await supabase
     .from('income')
     .update(updates)
     .eq('id', id)
+    .eq('user_id', req.user.id)
     .select();
 
   if (error) {
@@ -156,13 +191,14 @@ app.patch('/api/income/:id', async (req, res) => {
 });
 
 /* DELETE income */
-app.delete('/api/income/:id', async (req, res) => {
+app.delete('/api/income/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   const { data, error } = await supabase
     .from('income')
     .delete()
     .eq('id', id)
+    .eq('user_id', req.user.id)
     .select();
 
   if (error) {
@@ -175,17 +211,18 @@ app.delete('/api/income/:id', async (req, res) => {
 
   res.json({
     message: 'Income deleted successfully',
-    data: data[0]
+    data: data[0],
   });
 });
 
-// CRUD budget
 
-/* GET budgets */
-app.get('/api/budget', async (req, res) => {
+// CRUD budget
+/* GET budget */
+app.get('/api/budget', verifyToken, async (req, res) => {
   const { data, error } = await supabase
     .from('budget')
-    .select('*');
+    .select('*')
+    .eq('user_id', req.user.id);
 
   if (error) {
     return res.status(500).json({ error: error.message });
@@ -195,12 +232,17 @@ app.get('/api/budget', async (req, res) => {
 });
 
 /* POST budget */
-app.post('/api/budget', async (req, res) => {
+app.post('/api/budget', verifyToken, async (req, res) => {
   const { category, amount, month } = req.body;
 
   const { data, error } = await supabase
     .from('budget')
-    .insert([{ category, amount, month }])
+    .insert([{
+      category,
+      amount,
+      month,
+      user_id: req.user.id,
+    }])
     .select();
 
   if (error) {
@@ -211,23 +253,27 @@ app.post('/api/budget', async (req, res) => {
 });
 
 /* PATCH budget */
-app.patch('/api/budget/:id', async (req, res) => {
+app.patch('/api/budget/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
   const { category, amount, month } = req.body;
 
   const updates = {};
+
   if (category !== undefined) updates.category = category;
   if (amount !== undefined) updates.amount = amount;
   if (month !== undefined) updates.month = month;
 
   if (Object.keys(updates).length === 0) {
-    return res.status(400).json({ message: 'Provide a field to update' });
+    return res.status(400).json({
+      message: 'Provide a field to update',
+    });
   }
 
   const { data, error } = await supabase
     .from('budget')
     .update(updates)
     .eq('id', id)
+    .eq('user_id', req.user.id)
     .select();
 
   if (error) {
@@ -242,13 +288,14 @@ app.patch('/api/budget/:id', async (req, res) => {
 });
 
 /* DELETE budget */
-app.delete('/api/budget/:id', async (req, res) => {
+app.delete('/api/budget/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   const { data, error } = await supabase
     .from('budget')
     .delete()
     .eq('id', id)
+    .eq('user_id', req.user.id)
     .select();
 
   if (error) {
@@ -261,9 +308,10 @@ app.delete('/api/budget/:id', async (req, res) => {
 
   res.json({
     message: 'Budget deleted successfully',
-    data: data[0]
+    data: data[0],
   });
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

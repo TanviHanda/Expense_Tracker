@@ -1,4 +1,3 @@
-
 import { Navigate, Route, Routes } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
@@ -8,6 +7,7 @@ import Budget from './pages/Budget';
 import Signup from './pages/Signup';
 import Signin from './pages/Signin';
 import ProtectedRoute from './components/ProtectedRoute';
+import AuthCallback from './pages/AuthCallback';
 
 export default function App() {
   return (
@@ -15,7 +15,7 @@ export default function App() {
       <Route path="/" element={<Navigate to="/signup" replace />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/signin" element={<Signin />} />
-
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
