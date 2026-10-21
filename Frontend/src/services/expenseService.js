@@ -2,7 +2,7 @@
 import axios from "axios";
 import { supabase } from "../lib/supabase";
 
-const API_URL = "http://localhost:5000/api/expenses";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/expenses`;
 
 const getAuthConfig = async () => {
   const { data: { session }, error } =
