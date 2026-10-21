@@ -1,5 +1,5 @@
-import {useState, useEffect} from "react";
-import { getExpenses, addExpense, deleteExpense } from "../services/expenseService";
+import { useState, useEffect } from "react";
+import { getExpenses, addExpense, deleteExpense, updateExpense } from "../services/expenseService";
 import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
 
@@ -7,41 +7,67 @@ const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editingExpense, setEditingExpense] = useState(null);
 
   useEffect(() => {
-    const fetchExpenses = async() => {
-      try{
+    const fetchExpenses = async () => {
+      try {
         const data = await getExpenses();
         console.log("Expenses API response:", data);
         setExpenses(data);
       }
-      catch{
+      catch {
         setError("Failed to fetch expenses.");
       }
-      finally{
+      finally {
         setLoading(false);
       }
     }
-       fetchExpenses();
-  },[]);
-  const handleAddExpense = async(expense) => {
-    try{
+    fetchExpenses();
+  }, []);
+  const handleAddExpense = async (expense) => {
+    try {
       const newExpense = await addExpense(expense);
       const savedExpense = Array.isArray(newExpense)
         ? newExpense[0]
         : newExpense;
       setExpenses(prevExpenses => [...prevExpenses, savedExpense]);
     }
-    catch{
+    catch {
       setError("Failed to add expense.");
     }
   }
-  const handleDeleteExpense = async(id) => {
-    try{
+  const handleEditExpense = (expense) => {
+    setEditingExpense(expense);
+  };
+
+  const handleUpdateExpense = async (id, updatedData) => {
+    setError("");
+
+    try {
+      const updatedExpense = await updateExpense(id, updatedData);
+
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((expense) =>
+          expense.id === id
+            ? updatedExpense
+            : expense
+        )
+      );
+
+      setEditingExpense(null);
+    } catch (err) {
+      setError(
+        err.response?.data?.error || "Failed to update expense."
+      );
+    }
+  };
+  const handleDeleteExpense = async (id) => {
+    try {
       await deleteExpense(id);
       setExpenses(prevExpenses => prevExpenses.filter(expense => expense.id !== id));
     }
-    catch{
+    catch {
       setError("Failed to delete expense.");
     }
   }
@@ -61,15 +87,21 @@ const Expenses = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Form */}
         <div className="xl:col-span-1">
-          <ExpenseForm onAddExpense={handleAddExpense} />
+          <ExpenseForm
+            onAddExpense={handleAddExpense}
+            editingExpense={editingExpense}
+            onUpdateExpense={handleUpdateExpense}
+            onCancelEdit={() => setEditingExpense(null)}
+          />
         </div>
 
         {/* Expense List */}
         <div className="xl:col-span-2 min-w-0">
-          <ExpenseList 
-          expenses={expenses} onDeleteExpense={handleDeleteExpense} 
-          loading={loading} 
-          error={error}
+          <ExpenseList
+            expenses={expenses} onDeleteExpense={handleDeleteExpense}
+            loading={loading}
+            error={error}
+            onEditExpense={handleEditExpense}
           />
         </div>
       </div>

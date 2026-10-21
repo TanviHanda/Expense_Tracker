@@ -1,4 +1,8 @@
-const ExpenseItem = ({ expense, onDeleteExpense }) => {
+const ExpenseItem = ({
+  expense,
+  onDeleteExpense,
+  onEditExpense,
+}) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 items-center border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors">
       <div className="flex items-center gap-3">
@@ -34,7 +38,14 @@ const ExpenseItem = ({ expense, onDeleteExpense }) => {
         <span className="text-sm font-semibold text-gray-800">
           -₹{Number(expense.amount).toFixed(2)}
         </span>
-
+        <button
+          type="button"
+          aria-label="Edit expense"
+          className="text-blue-600 hover:text-blue-800 text-sm transition-colors"
+          onClick={() => onEditExpense(expense)}
+        >
+          Edit
+        </button>
         <button
           type="button"
           aria-label="Delete expense"

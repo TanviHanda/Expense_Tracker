@@ -1,36 +1,59 @@
-import { useState } from "react";
-const ExpenseForm = ({ onAddExpense }) => {
+import { useState, useEffect } from "react";
+const ExpenseForm = ({
+  onAddExpense,
+  editingExpense,
+  onUpdateExpense,
+  onCancelEdit,
+}) => {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
+  useEffect(() => {
+    if (editingExpense) {
+      setTitle(editingExpense.title || "");
+      setAmount(String(editingExpense.amount ?? ""));
+      setCategory(editingExpense.category || "");
+      setDate(editingExpense.expense_date?.slice(0, 10) || "");
+      setNotes(editingExpense.notes || "");
+    } else {
+      setTitle("");
+      setAmount("");
+      setCategory("");
+      setDate("");
+      setNotes("");
+    }
+  }, [editingExpense]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!title || !amount || !category || !date) {
       alert("Please fill in all fields.");
       return;
     }
-    const newExpense = {
+
+    const expenseData = {
       title,
       amount: parseFloat(amount),
       category,
       expense_date: date,
-      notes
+      notes,
     };
-    await onAddExpense(newExpense);
-    setTitle("");
-    setAmount("");
-    setCategory("");
-    setDate("");
-    setNotes("");
-  }
+
+    if (editingExpense) {
+      await onUpdateExpense(editingExpense.id, expenseData);
+    } else {
+      await onAddExpense(expenseData);
+    }
+  };
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-800">
-          Add New Expense
+          {editingExpense ? "Edit Expense" : "Add New Expense"}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           Record your spending
@@ -106,15 +129,24 @@ const ExpenseForm = ({ onAddExpense }) => {
             placeholder="Add a note about this expense..."
             className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             value={notes}
-onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
         <button
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5 px-4 rounded-lg transition-colors"
         >
-          + Add Expense
+          {editingExpense ? "Update Expense" : "+ Add Expense"}
         </button>
+        {editingExpense && (
+          <button
+            type="button"
+            onClick={onCancelEdit}
+            className="w-full border border-gray-300 text-gray-700 font-medium text-sm py-2.5 px-4 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        )}
       </form>
     </div>
   );
