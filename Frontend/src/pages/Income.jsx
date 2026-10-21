@@ -5,12 +5,14 @@ import {
   getIncomes,
   addIncome,
   deleteIncome,
+  updateIncome
 } from "../services/incomeService";
 
 const Income = () => {
   const [incomes, setIncomes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editingIncome, setEditingIncome] = useState(null);
 
   useEffect(() => {
     const fetchIncomes = async () => {
@@ -50,7 +52,29 @@ const Income = () => {
       setError("Failed to delete income.");
     }
   };
+  const handleEditIncome = (income) => {
+    setEditingIncome(income);
+  };
 
+  const handleUpdateIncome = async (id, updatedData) => {
+    setError("");
+
+    try {
+      const updatedIncome = await updateIncome(id, updatedData);
+
+      setIncomes((prev) =>
+        prev.map((income) =>
+          income.id === id ? updatedIncome : income
+        )
+      );
+
+      setEditingIncome(null);
+    } catch (err) {
+      setError(
+        err.response?.data?.error || "Failed to update income."
+      );
+    }
+  };
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Page Header */}
@@ -71,12 +95,23 @@ const Income = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Form */}
         <div className="xl:col-span-1">
-          <IncomeForm onAddIncome={handleAddIncome} />
+          <IncomeForm
+            onAddIncome={handleAddIncome}
+            editingIncome={editingIncome}
+            onUpdateIncome={handleUpdateIncome}
+            onCancelEdit={() => setEditingIncome(null)}
+          />
         </div>
 
         {/* Expense List */}
         <div className="xl:col-span-2 min-w-0">
-          <IncomeList onDeleteIncome={handleDeleteIncome} incomes={incomes} loading={loading} error={error} />
+          <IncomeList
+            incomes={incomes}
+            onDeleteIncome={handleDeleteIncome}
+            onEditIncome={handleEditIncome}
+            loading={loading}
+            error={error}
+          />
         </div>
       </div>
     </div>

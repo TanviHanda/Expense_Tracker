@@ -3,6 +3,7 @@ import IncomeItem from "./IncomeItem";
 const IncomeList = ({
    incomes = [],
   onDeleteIncome,
+  onEditIncome,
   loading,
   error,
 }) => {
@@ -53,6 +54,7 @@ const IncomeList = ({
               key={income.id}
               income={income}
               onDeleteIncome={onDeleteIncome}
+              onEditIncome={onEditIncome}
             />
           ))}
       </div>

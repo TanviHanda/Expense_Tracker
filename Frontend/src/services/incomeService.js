@@ -17,3 +17,8 @@ export const deleteIncome = async (id) => {
   const response = await axios.delete(`${API_URL}/${id}`);
   return response.data;
 };
+
+export const updateIncome = async (id, income) => {
+  const response = await axios.put(`${API_URL}/${id}`, income);
+  return response.data;
+};

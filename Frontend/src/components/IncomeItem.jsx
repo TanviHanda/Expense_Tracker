@@ -1,4 +1,4 @@
-const IncomeItem = ({ income, onDeleteIncome }) => {
+const IncomeItem = ({ income, onDeleteIncome, onEditIncome }) => {
   const formattedDate = income.income_Date
     ? new Date(`${income.income_Date}`.slice(0, 10) + "T00:00:00")
       .toLocaleDateString("en-IN", {
@@ -38,7 +38,14 @@ const IncomeItem = ({ income, onDeleteIncome }) => {
         <span className="text-sm font-semibold text-green-600">
           +₹{Number(income.amount).toFixed(2)}
         </span>
-
+        <button
+          type="button"
+          aria-label="Edit income"
+          className="text-blue-600 hover:text-blue-800 text-sm transition-colors"
+          onClick={() => onEditIncome(income)}
+        >
+          Edit
+        </button>
         <button
           type="button"
           aria-label="Delete income"

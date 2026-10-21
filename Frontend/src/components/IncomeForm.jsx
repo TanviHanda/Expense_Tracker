@@ -1,10 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const IncomeForm = ({ onAddIncome }) => {
+const IncomeForm = ({
+  onAddIncome,
+  editingIncome,
+  onUpdateIncome,
+  onCancelEdit,
+}) => {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [source, setSource] = useState("");
   const [date, setDate] = useState("");
+
+  useEffect(() => {
+    if (editingIncome) {
+      setTitle(editingIncome.title || "");
+      setAmount(String(editingIncome.amount ?? ""));
+      setSource(editingIncome.source || "");
+      setDate(editingIncome.income_Date?.slice(0, 10) || "");
+    } else {
+      setTitle("");
+      setAmount("");
+      setSource("");
+      setDate("");
+    }
+  }, [editingIncome]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,21 +46,24 @@ const IncomeForm = ({ onAddIncome }) => {
       income_Date: date,
     };
 
-    const success = await onAddIncome(newIncome);
+    if (editingIncome) {
+      await onUpdateIncome(editingIncome.id, newIncome);
+    } else {
+      const success = await onAddIncome(newIncome);
 
-    if (success) {
-      setTitle("");
-      setAmount("");
-      setSource("");
-      setDate("");
+      if (success) {
+        setTitle("");
+        setAmount("");
+        setSource("");
+        setDate("");
+      }
     }
   };
-
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-800">
-          Add New Income
+          {editingIncome ? "Edit Income" : "Add New Income"}
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           Record your earnings
@@ -112,8 +134,17 @@ const IncomeForm = ({ onAddIncome }) => {
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2.5 px-4 rounded-lg transition-colors"
         >
-          + Add Income
+          {editingIncome ? "Update Income" : "+ Add Income"}
         </button>
+        {editingIncome && (
+          <button
+            type="button"
+            onClick={onCancelEdit}
+            className="w-full border border-gray-300 text-gray-700 font-medium text-sm py-2.5 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+        )}
       </form>
     </div>
   );
